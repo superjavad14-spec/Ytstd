@@ -1,0 +1,34 @@
+name: دانلود زیرنویس یوتیوب (فارسی و انگلیسی)
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_url:
+        description: "آدرس کامل ویدیوی یوتیوب"
+        required: true
+        type: string
+
+jobs:
+  download-subtitles:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 دریافت کد مخزن
+        uses: actions/checkout@v4
+
+      - name: 🐍 نصب پایتون ۳.۱۱
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 📦 نصب وابستگی‌ها
+        run: pip install -r requirements.txt
+
+      - name: 🎬 اجرای اسکریپت دریافت زیرنویس
+        run: python get_transcript.py "${{ github.event.inputs.video_url }}"
+
+      - name: 📤 آپلود فایل‌های زیرنویس (Artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: subtitle-files
+          path: subtitle/
+          if-no-files-found: warn
